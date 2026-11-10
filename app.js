@@ -137,7 +137,7 @@ SC.cos = v => {
 
 SC.data30 = v => {
   const names = { A: ["A", "보드마커"], B: ["B", "펜 한 번"], C: ["C", "펜 2~3번"] };
-  "ABC".forEach((s, r) => {
+  [..."ABC"].forEach((s, r) => {
     lbl(v, 0, 60 + r * 200, `<b style="font-size:34px">${names[s][0]}</b><br>${names[s][1]}`, .4 + r * .5);
     for (let dgt = 0; dgt < 10; dgt++) digit(v, V1(idxOf(dgt, s)), 150 + dgt * 83, 50 + r * 200, 76, .5 + r * .5 + dgt * .04, { glow: false });
   });
@@ -160,7 +160,7 @@ SC.blur = v => {
   // real max brightness per set
   lbl(v, 560, 10, "<b>실제: 28×28에서 가장 밝은 값</b> (점 = 사진 1장)", 2.8);
   const x0 = 640, w = 320;
-  "ABC".forEach((s, r) => {
+  [..."ABC"].forEach((s, r) => {
     const y = 100 + r * 160;
     lbl(v, 560, y - 8, s, 3.0 + r * .2);
     const tr = at(mk(v, "div", "ab"), x0, y, w, 8); tr.style.background = "var(--cell0)"; tr.style.borderRadius = "4px";
@@ -227,8 +227,8 @@ SC.aug = v => {
   S.aug.forEach((a, i) => {
     const x = 320 + (i % 3) * 225, y = 10 + Math.floor(i / 3) * 360;
     digit(v, a.img, x, y, 190, 1.1 + i * .2);
-    lbl(v, x, y + 200, `회전 ${a.deg}° · 확대 ${a.s}`, 1.3 + i * .2);
-    lbl(v, x, y + 234, `기울이기 ${a.h} · 이동 (${a.t[0]}, ${a.t[1]})`, 1.35 + i * .2);
+    lbl(v, x, y + 200, `회전 ${a.deg}° · 확대 ${a.s}`, 1.3 + i * .2).style.fontSize = "21px";
+    lbl(v, x, y + 230, `기울이기 ${a.h}`, 1.35 + i * .2).style.fontSize = "21px";
   });
 };
 
@@ -319,11 +319,11 @@ SC.relu = v => {
 
 SC.learn = v => {
   const s = svg(v, 0, 60, 560, 400); s.classList.add("fade"); dl(s, .3);
-  const f = x => 360 - 300 * Math.pow((x - 280) / 260, 2);
-  let d = "M20 " + (400 - f(20)); for (let x = 30; x <= 540; x += 10) d += ` L${x} ${400 - f(x)}`;
-  sv(s, "path", { d: d.replace(/ (\d+(\.\d+)?)$/, "") , stroke: "var(--muted)", "stroke-width": 4, fill: "none" });
+  const f = x => 380 - 300 * Math.pow((x - 280) / 260, 2);
+  let d = "M20 " + f(20); for (let x = 30; x <= 540; x += 10) d += ` L${x} ${f(x)}`;
+  sv(s, "path", { d, stroke: "var(--muted)", "stroke-width": 4, fill: "none" });
   const xs = [40]; for (let k = 1; k < 7; k++) xs.push(280 - (280 - xs[k - 1]) * .55);
-  xs.forEach((x, k) => { const y = 400 - f(x) - 16; const c = sv(s, "circle", { cx: x, cy: y, r: 15, fill: k === 6 ? "var(--acc)" : `rgba(${css("--acc2").startsWith("#") ? "255,180,84" : "217,96,59"},${.35 + k * .1})` }, "pop"); c.style.transformBox = "fill-box"; c.style.transformOrigin = "center"; dl(c, .8 + k * .35); });
+  xs.forEach((x, k) => { const y = f(x) - 16; const c = sv(s, "circle", { cx: x, cy: y, r: 15, fill: k === 6 ? "var(--acc)" : `rgba(${css("--acc2").startsWith("#") ? "255,180,84" : "217,96,59"},${.35 + k * .1})` }, "pop"); c.style.transformBox = "fill-box"; c.style.transformOrigin = "center"; dl(c, .8 + k * .35); });
   lbl(v, 20, 470, "손실(틀린 정도)이 낮은 쪽으로 한 걸음씩", 1.0);
   [["① 얼마나 틀렸나", "δ₂ = p − y"], ["② 거꾸로 전달", "δ₁ = (W₂ᵀδ₂) ⊙ ReLU′"], ["③ 고칠 양", "δ₁xᵀ 만큼 W₁에서 빼기"]].forEach(([t, m], i) => {
     const c = dl(at(mk(v, "div", "card up"), 600, 30 + i * 170, 380, 145), 1.6 + i * .4);
@@ -362,7 +362,7 @@ SC.eta = v => {
     let d = ""; c.forEach((val, i) => { d += (i ? " L" : "M") + (x0 + i / (c.length - 1) * W).toFixed(1) + " " + ly(val).toFixed(1); });
     const p = sv(s, "path", { d, stroke: cols[k], "stroke-width": 5, "clip-path": "url(#etaclip)", pathLength: 1 }, "ln"); dl(p, .6 + j * 1.0);
   });
-  lbl(v, 640, 80, "η = 2.05/λmax → <b style='color:var(--acc2)'>발산</b>", 2.8);
+  lbl(v, 110, 40, "η = 2.05/λmax → <b style='color:var(--acc2)'>발산</b>", 2.8);
   lbl(v, 640, 340, "η = 0.5/λmax → 수렴 (느림)", .9);
   lbl(v, 640, 430, "η = 1.9/λmax → <b style='color:var(--acc)'>수렴</b>", 1.9);
   lbl(v, 70, 610, "손실 − 최소 손실 (로그 눈금), 실제 경사하강", .4);
@@ -393,7 +393,7 @@ SC.polar = v => {
   lbl(v, 640, 30, "같은 dr, 같은 dθ인데", 1.0);
   lbl(v, 640, 80, "<b>바깥 칸일수록 넓다</b> (∝ r)", 2.2);
   [["x = r cos θ,  y = r sin θ", 160], ["J = [cos θ  −r sin θ ; sin θ  r cos θ]", 230], ["<b>det J = r</b>", 310], ["dx dy = r dr dθ", 380]].forEach(([t, y], i) => dl(at(mk(v, "div", "eqline fade", t), 640, y), 2.5 + i * .3).style.fontSize = "30px");
-  chip(v, 640, 500, "증강 변환도: 야코비안 = A, |det A| = 넓이 배율", 3.8);
+  lbl(v, 640, 480, "증강 변환도 같은 이야기:<br>야코비안 = A, <b>|det A| = 넓이 배율</b>", 3.8);
 };
 
 SC.jaccheck = v => {
@@ -469,12 +469,12 @@ SC.gramsize = v => {
   b.style.background = "repeating-linear-gradient(45deg,var(--cell0) 0 14px,transparent 14px 28px)";
   lbl(v, 0, 10, "<b>XᵀX</b> 102,400×102,400", .5); lbl(v, 0, 500, "약 105억 칸 · <b style='color:var(--acc2)'>41.9 GB</b> → 못 만듦", .9);
   const sm = dl(at(mk(v, "div", "ab pop"), 440, 440, 14, 14), 1.4); sm.style.background = "var(--acc)"; sm.style.boxShadow = "var(--glow)";
-  lbl(v, 462, 432, "← 30×30 (그려도 이 정도)", 1.5);
+  lbl(v, 462, 432, "← 30×30", 1.5);
   const order = DIGITS.y.map((d, i) => i).sort((a, b) => DIGITS.y[a] - DIGITS.y[b] || DIGITS.set[a].localeCompare(DIGITS.set[b]));
-  const g = at(mk(v, "div", "mg"), 560, 60, 420, 420); g.style.gridTemplateColumns = "repeat(30,1fr)"; g.style.gap = "1px";
+  const g = at(mk(v, "div", "mg"), 580, 60, 400, 400); g.style.gridTemplateColumns = "repeat(30,1fr)"; g.style.gap = "1px";
   order.forEach((i, r) => order.forEach((j, c) => { const val = S.cosG[i][j] / 100; const e = dl(mk(g, "i"), 2.0 + (r + c) * .015); e.style.background = `rgba(${css("--pos")},${Math.max(0, val)})`; e.style.borderRadius = "1px"; }));
-  lbl(v, 560, 10, "<b>G = XXᵀ</b> 30×30 (실제, 숫자 순서)", 1.9);
-  lbl(v, 560, 500, "칸 = 두 사진의 코사인 · 대각선 블록 = 같은 숫자", 2.6);
+  lbl(v, 580, 10, "<b>G = XXᵀ</b> 30×30 (실제)", 1.9);
+  lbl(v, 580, 480, "칸 = 두 사진의 코사인<br>대각선 블록 = 같은 숫자", 2.6);
   chip(v, 0, 600, "30×30 그람 행렬로 고유벡터: <b>0.057초</b>", 3.2);
 };
 
@@ -494,7 +494,7 @@ SC.gramdet = v => {
     const x = i * 245, d = .4 + i * .6;
     dl(at(mk(v, "div", "panel pop"), x, 20, 225, 330), d);
     const s = svg(v, x, 40, 225, 240); s.classList.add("fade"); dl(s, d + .1);
-    const t = deg * Math.PI / 180, ox = 40, oy = 200, A = 150, bx = 150 * Math.cos(t), by = -150 * Math.sin(t) * .9;
+    const t = deg * Math.PI / 180, ox = 20, oy = 190, A = 95, bx = 95 * Math.cos(t), by = -95 * Math.sin(t);
     sv(s, "path", { d: `M${ox} ${oy} L${ox + A} ${oy} L${ox + A + bx} ${oy + by} L${ox + bx} ${oy + by} Z`, fill: `rgba(${css("--pos")},.3)`, stroke: "none" });
     sv(s, "line", { x1: ox, y1: oy, x2: ox + A, y2: oy, stroke: "var(--acc)", "stroke-width": 5 });
     sv(s, "line", { x1: ox, y1: oy, x2: ox + bx, y2: oy + by, stroke: "var(--acc2)", "stroke-width": 5 });
@@ -521,7 +521,7 @@ SC.p1 = v => {
     const x = f * 330, d = .4 + f * .8;
     dl(at(mk(v, "div", "panel pop"), x, 20, 310, 470), d);
     lbl(v, x + 20, 36, `<b>폴드 ${f + 1}</b> · 시험 = ${test}`, d + .1);
-    "ABC".forEach((s, r) => {
+    [..."ABC"].forEach((s, r) => {
       const y = 100 + r * 120, isT = s === test;
       const fr = dl(at(mk(v, "div", "ab fade"), x + 14, y - 8, 282, 100), d + .2); fr.style.border = `2px solid ${isT ? "var(--acc2)" : "var(--line)"}`; fr.style.borderRadius = "12px";
       lbl(v, x + 22, y + 60, `<span style="color:${isT ? "var(--acc2)" : "var(--muted)"};font-size:21px">${isT ? "시험" : "학습"}</span>`, d + .3);
@@ -559,7 +559,7 @@ SC.confusion = v => {
   const M = [[9, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 9, 0, 0, 0, 0, 0, 0, 0, 0], [0, 2, 5, 0, 0, 0, 0, 0, 2, 0], [0, 0, 0, 9, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 9, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 8, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 9, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 9, 0, 0], [0, 0, 0, 2, 0, 0, 0, 0, 7, 0], [0, 3, 0, 0, 0, 3, 0, 3, 0, 0]];
   const cs = 58, x0 = 140, y0 = 60;
   for (let i = 0; i < 10; i++) { lbl(v, x0 + i * cs + 22, y0 - 40, String(i), .3); lbl(v, x0 - 36, y0 + i * cs + 14, String(i), .3); }
-  lbl(v, x0, 0, "예측 →", .2); lbl(v, 0, y0 + 250, "정답 ↓", .2);
+  lbl(v, x0 + 590, 20, "예측 →", .2); lbl(v, 40, 0, "정답 ↓", .2);
   M.forEach((row, r) => row.forEach((n, c) => {
     const e = dl(at(mk(v, "div", "cell fade num", n ? String(n) : ""), x0 + c * cs, y0 + r * cs, cs - 4, cs - 4), .6 + (r === c ? r * .08 : 1.4 + r * .05));
     e.style.background = n ? (r === c ? `rgba(${css("--pos")},${.2 + n / 9 * .7})` : `rgba(${css("--neg")},${.35 + n / 9 * .6})`) : "var(--cell0)";
