@@ -1,0 +1,4 @@
+preview*.html
+build/
+fonts/PretendardVariable.woff2
+data/digits.json
